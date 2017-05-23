@@ -8,7 +8,7 @@ from tqdm import tqdm
 #   VARIABLES TO CONFIGURE THE SCRIPT
 
 USE_ENERGY_APPROACH = False
-USE_BITBYBIT_APPROACH = False
+USE_BITBYBIT_APPROACH = True
 
 
 
@@ -56,7 +56,8 @@ def compareTwoPixels(PixelA, PixelB, epsilon):
     return result
 
 def use_BitByBit (ref, cropped, n):
-    minimumSimilarity = 0.8
+
+    minimumSimilarity = 0.9
     
     H, W = ref.shape
     nTotalPixels = H*W
@@ -67,17 +68,17 @@ def use_BitByBit (ref, cropped, n):
     for x in xrange(0, H):
         for y in xrange(0,W):
 
-            if compareTwoPixels(ref(x,y), cropped(x,y), epsilon):
+            if compareTwoPixels(ref[x,y], cropped[x,y], epsilon):
                 nSimilarPixels += 1
 
-    similarity = nSimilarPixels / nTotalPixels
+    similarity = float(nSimilarPixels) / float(nTotalPixels)
 
     if similarity >= minimumSimilarity:
         cv2.imwrite("crop_results/crop%d.png" % n, cropped)     # save frame as PNG file
         n += 1
 
 
-    return similarity, n
+    return nSimilarPixels, n
 
 
 
@@ -89,12 +90,9 @@ def use_BitByBit (ref, cropped, n):
 
 # Loading image
 
-reference = cv2.imread('reference.jpg',cv2.IMREAD_GRAYSCALE)
+reference = cv2.imread('reference.png',cv2.IMREAD_GRAYSCALE)
 
 height_reference, width_reference = reference.shape
-
-print('width = '+ str(width_reference))
-print('height = '+ str(height_reference))
 
 # Defining threshold by hand. This thresghold is an upperbound
 
@@ -131,10 +129,15 @@ for col in tqdm(xrange(0, height_reference2-height_reference)):
 
 # At the end we plot how the value of the energy was changing along the image, to estimate better our threshold
 
-plt.plot(energy)
-plt.ylabel('energy')
-plt.show()
+if USE_ENERGY_APPROACH: 
+    plt.plot(energy)
+    plt.ylabel('energy')
+    plt.show()
     
+if USE_BITBYBIT_APPROACH:
+    plt.plot(similarity_results)
+    plt.ylabel('similar pixels')
+    plt.show()
 
 
 
