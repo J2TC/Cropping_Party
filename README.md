@@ -1,13 +1,13 @@
 |---------------------------------------------------------------------------------------------------|	
-|																									|
+|                                                 																									|
 |Repository for doing the cropping of cones within the driverless team inside Formula Student @ KTH |
-|																									|
-|																									|
+|																									                                                  |
+|																									                                                  |
 |---------------------------------------------------------------------------------------------------|
-|											TO DO													|
+|											                          TO DO                     													|
 |---------------------------------------------------------------------------------------------------|
-|	* Running the algorithm with several reference images instead of only 1.						|
-|	* Crop several reference images.																|
+|	* Running the algorithm with several reference images instead of only 1.													            
+|	* Crop several reference images.																                                  | 
 |	* Run the script over a set of test images to get sucess of the cone detection.					|
 |																									|
 |																									|
