@@ -9,18 +9,26 @@ from tqdm import tqdm
 
 USE_ENERGY_APPROACH = True
 USE_BITBYBIT_APPROACH = False
-USE_SOBEL_X = True
+USE_SOBEL_X = False
+USE_CANNY = True
+
+SHOW_GRAPHS = False
+ENABLE_SAVE_CROPS = True
 
 PATH_FRAMES = "testsFrames/"
 PATH_CROPS = "crop_results/"
 PATH_REFERENCE = "references/"
 
 NUMBER_REFS = 2                                 # This number is the first not to be included
-NUMBER_FRAMES = 4                               # This number is the first not to be included
+NUMBER_FRAMES = 2                               # This number is the first not to be included
 
 ###############################################################################################
 def use_Energy(ref, cropped):
     threshold = 0.9 * pow(10,9)
+
+    if USE_CANNY:
+        threshold = 126
+
     sucess = False
 
     # Computing the energy of the error. 
@@ -88,6 +96,11 @@ def applySobelX(img):
 
     return abs_sobel
 
+def applyCanny(img):
+    canny = cv2.Canny(img,100,200)
+
+    return canny
+
 
 
 ###############################################################################################
@@ -109,6 +122,12 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
     else :
         image = original
 
+    if USE_CANNY:
+        image = applyCanny(original)
+    else :
+        image = original
+
+
     height_reference2, width_reference2 = image.shape
 
 
@@ -119,6 +138,9 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
         if USE_SOBEL_X:
             reference = applySobelX(reference)
 
+        if USE_CANNY:
+            reference = applyCanny(reference)
+
         for col in xrange(0, height_reference2-height_reference):
             for row in xrange(0, width_reference2-width_reference):
                 crop_img = image[col:col+height_reference, row: row + width_reference]    
@@ -126,7 +148,7 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
                 if USE_ENERGY_APPROACH:     
                     success, value_energy = use_Energy(reference,crop_img)
 
-                    if success:
+                    if success & ENABLE_SAVE_CROPS:
                         cropped = original[col:col+height_reference, row: row + width_reference]  
                         cv2.imwrite(PATH_CROPS+"crop%d.png" % nConesDetected, cropped)     # save frame as PNG file
                         nConesDetected += 1
@@ -138,7 +160,7 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
                 if USE_BITBYBIT_APPROACH:
                     similarity = use_BitByBit(reference,crop_img)
 
-                    if success:
+                    if success & ENABLE_SAVE_CROPS:
                         cropped = original[col:col+height_reference, row: row + width_reference]  
                         cv2.imwrite(PATH_CROPS+"crop%d.png" % nConesDetected, cropped)     # save frame as PNG file
                         nConesDetected += 1
@@ -150,12 +172,12 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
     # At the end we plot how the value of the energy was changing along the image, to estimate better our threshold
 
-#    if USE_ENERGY_APPROACH: 
-#        plt.plot(energy)
-#        plt.ylabel('energy')
-#        plt.show()
+if USE_ENERGY_APPROACH & SHOW_GRAPHS: 
+    plt.plot(energy)
+    plt.ylabel('energy')
+    plt.show()
         
-#    if USE_BITBYBIT_APPROACH:
-#        plt.plot(similarity_results)
-#        plt.ylabel('similar pixels')
-#        plt.show()
+if USE_BITBYBIT_APPROACH & SHOW_GRAPHS:
+    plt.plot(similarity_results)
+    plt.ylabel('similar pixels')
+    plt.show()
