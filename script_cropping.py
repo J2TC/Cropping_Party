@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 USE_ENERGY_APPROACH = True
 USE_BITBYBIT_APPROACH = False
-USE_SOBEL_X = True
+USE_SOBEL = True
 USE_CANNY = False
 
 SHOW_GRAPHS = True
@@ -25,6 +25,7 @@ NUMBER_FRAMES = 10                               # This number is the first not 
 ###############################################################################################
 def use_Energy(ref, cropped):
     threshold = 1.254 * pow(10,9)
+    
 
     if USE_CANNY:
         threshold = 131.5
@@ -90,13 +91,16 @@ def use_BitByBit (ori, ref, cropped):
 
     return sucess,nSimilarPixels
 
-def applySobelX(img):
-    sobel = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=5)
-    abs_sobel = np.absolute(sobel)
+def applySobel(img):
+    img = cv2.blur(img,(10,10))
+    sobelx = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=5)
+    sobely = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=5)
+    sobel2 = sobelx+sobely
 
-    return abs_sobel
+    return sobel2
 
 def applyCanny(img):
+    img = cv2.blur(img,(10,10))
     canny = cv2.Canny(img,100,200)
 
     return canny
@@ -115,10 +119,13 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
     height_reference, width_reference = reference.shape
 
+
+    original_color = cv2.imread(PATH_FRAMES+"frame%d.jpg" % (iteration))
     original = cv2.imread(PATH_FRAMES+"frame%d.jpg" % iteration, cv2.IMREAD_GRAYSCALE)
 
-    if USE_SOBEL_X:
-        image = applySobelX(original)
+
+    if USE_SOBEL:
+        image = applySobel(original)
     else :
         image = original
 
@@ -135,8 +142,8 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
         reference = cv2.imread(PATH_REFERENCE+"reference.jpg" ,cv2.IMREAD_GRAYSCALE)
 
-        if USE_SOBEL_X:
-            reference = applySobelX(reference)
+        if USE_SOBEL:
+            reference = applySobel(reference)
 
         if USE_CANNY:
             reference = applyCanny(reference)
@@ -149,10 +156,9 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
                     success, value_energy = use_Energy(reference,crop_img)
 
                     if success & ENABLE_SAVE_CROPS:
-                        cropped = original[col:col+height_reference, row: row + width_reference]  
+                        cropped = original_color[col:col+height_reference, row: row + width_reference]  
                         cv2.imwrite(PATH_CROPS+"crop%d.png" % nConesDetected, cropped)     # save frame as PNG file
                         nConesDetected += 1
-
 
                     # Appending the data to plot it with matplotlib
                     energy.append(value_energy)
