@@ -9,25 +9,25 @@ from tqdm import tqdm
 
 USE_ENERGY_APPROACH = True
 USE_BITBYBIT_APPROACH = False
-USE_SOBEL_X = False
-USE_CANNY = True
+USE_SOBEL_X = True
+USE_CANNY = False
 
-SHOW_GRAPHS = False
+SHOW_GRAPHS = True
 ENABLE_SAVE_CROPS = True
 
-PATH_FRAMES = "testsFrames/"
+PATH_FRAMES = "frames/"
 PATH_CROPS = "crop_results/"
 PATH_REFERENCE = "references/"
 
 NUMBER_REFS = 2                                 # This number is the first not to be included
-NUMBER_FRAMES = 2                               # This number is the first not to be included
+NUMBER_FRAMES = 10                               # This number is the first not to be included
 
 ###############################################################################################
 def use_Energy(ref, cropped):
-    threshold = 0.9 * pow(10,9)
+    threshold = 1.254 * pow(10,9)
 
     if USE_CANNY:
-        threshold = 126
+        threshold = 131.5
 
     sucess = False
 
@@ -111,11 +111,11 @@ similarity_results = []
 
 for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
-    reference = cv2.imread(PATH_REFERENCE+"reference (1).png" ,cv2.IMREAD_GRAYSCALE)
+    reference = cv2.imread(PATH_REFERENCE+"reference.jpg" ,cv2.IMREAD_GRAYSCALE)
 
     height_reference, width_reference = reference.shape
 
-    original = cv2.imread(PATH_FRAMES+"Test (%d).jpg" % iteration, cv2.IMREAD_GRAYSCALE)
+    original = cv2.imread(PATH_FRAMES+"frame%d.jpg" % iteration, cv2.IMREAD_GRAYSCALE)
 
     if USE_SOBEL_X:
         image = applySobelX(original)
@@ -133,7 +133,7 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
     for nReference in xrange(1, NUMBER_REFS):
 
-        reference = cv2.imread(PATH_REFERENCE+"reference (%d).png" %  nReference,cv2.IMREAD_GRAYSCALE)
+        reference = cv2.imread(PATH_REFERENCE+"reference.jpg" ,cv2.IMREAD_GRAYSCALE)
 
         if USE_SOBEL_X:
             reference = applySobelX(reference)
