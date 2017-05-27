@@ -20,12 +20,18 @@ PATH_CROPS = "crop_results/"
 PATH_REFERENCE = "references/"
 
 NUMBER_REFS = 2                                 # This number is the first not to be included
-NUMBER_FRAMES = 10                               # This number is the first not to be included
+NUMBER_FRAMES = 450                               # This number is the first not to be included
+FIRST_FRAME = 0
+#REFERENCE_NOW = "reference1.jpg"
+#REFERENCE_NOW = "reference2.jpg"
+REFERENCE_NOW = "reference3.jpg"
 
 ###############################################################################################
 def use_Energy(ref, cropped):
-    threshold = 1.254 * pow(10,9)
-    
+    #threshold = 1.254 * pow(10,9)
+    #threshold =3.9 * pow(10,9)
+    threshold = 6.09 * pow(10,8)
+
 
     if USE_CANNY:
         threshold = 131.5
@@ -115,13 +121,13 @@ similarity_results = []
 
 for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
-    reference = cv2.imread(PATH_REFERENCE+"reference.jpg" ,cv2.IMREAD_GRAYSCALE)
+    reference = cv2.imread(PATH_REFERENCE+REFERENCE_NOW ,cv2.IMREAD_GRAYSCALE)
 
     height_reference, width_reference = reference.shape
 
 
-    original_color = cv2.imread(PATH_FRAMES+"frame%d.jpg" % (iteration))
-    original = cv2.imread(PATH_FRAMES+"frame%d.jpg" % iteration, cv2.IMREAD_GRAYSCALE)
+    original_color = cv2.imread(PATH_FRAMES+"frame%d.jpg" % (iteration+FIRST_FRAME))
+    original = cv2.imread(PATH_FRAMES+"frame%d.jpg" % (iteration+FIRST_FRAME), cv2.IMREAD_GRAYSCALE)
 
 
     if USE_SOBEL:
@@ -140,7 +146,7 @@ for iteration in tqdm(xrange(1,NUMBER_FRAMES)):
 
     for nReference in xrange(1, NUMBER_REFS):
 
-        reference = cv2.imread(PATH_REFERENCE+"reference.jpg" ,cv2.IMREAD_GRAYSCALE)
+        reference = cv2.imread(PATH_REFERENCE+REFERENCE_NOW ,cv2.IMREAD_GRAYSCALE)
 
         if USE_SOBEL:
             reference = applySobel(reference)
